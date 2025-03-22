@@ -1,118 +1,96 @@
-﻿#include <iostream>
+﻿/*
+ * A simple stupid game that is a good start to build any games in a clean and simple way.
+
+ * Rule: a game is over when there is no SpongeBob left.
+ * How to play: Use arrow keys to add more SpongeBob.
+ */
+#include <iostream>
 #include <SDL.h>
-#include <SDL_image.h>
+#include <cstdlib>
+#include <ctime>
+#include "SDL_Utils.h"
+#include "Game.h"
 
 using namespace std;
 
-const int SCREEN_WIDTH = 1000;
-const int SCREEN_HEIGHT = 600;
-const char* WINDOW_TITLE = "Hello World!";
+Action getUserAction();
 
-void logErrorAndExit(const char* msg, const char* error)
-{
-    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR, "%s: %s", msg, error);
-    SDL_Quit();
-}
-
-SDL_Window* initSDL(int SCREEN_WIDTH, int SCREEN_HEIGHT, const char* WINDOW_TITLE)
-{
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-        logErrorAndExit("SDL_Init", SDL_GetError());
-
-    SDL_Window* window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    //full screen
-    //window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    if (window == nullptr) logErrorAndExit("CreateWindow", SDL_GetError());
-
-    if (!IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG))
-        logErrorAndExit("SDL_image error:", IMG_GetError());
-
-    return window;
-}
-
-SDL_Renderer* createRenderer(SDL_Window* window)
-{
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED |
-        SDL_RENDERER_PRESENTVSYNC);
-    //Khi chạy trong máy ảo (ví dụ phòng máy ở trường)
-    //renderer = SDL_CreateSoftwareRenderer(SDL_GetWindowSurface(window));
-
-    if (renderer == nullptr) logErrorAndExit("CreateRenderer", SDL_GetError());
-
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-    SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-    return renderer;
-}
-
-void quitSDL(SDL_Window* window, SDL_Renderer* renderer)
-{
-    IMG_Quit();
-
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-}
-
-void waitUntilKeyPressed()
-{
-    SDL_Event e;
-    while (true) {
-        if (SDL_PollEvent(&e) != 0 &&
-            (e.type == SDL_KEYDOWN || e.type == SDL_QUIT))
-            return;
-        SDL_Delay(100);
-    }
-}
-
-void renderTexture(SDL_Texture* texture, int x, int y, SDL_Renderer* renderer)
-{
-    SDL_Rect dest;
-
-    dest.x = x;
-    dest.y = y;
-    SDL_QueryTexture(texture, NULL, NULL, &dest.w, &dest.h);
-
-    SDL_RenderCopy(renderer, texture, NULL, &dest);
-}
-
-SDL_Texture* loadTexture(const char* filename, SDL_Renderer* renderer)
-{
-    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Loading %s", filename);
-
-    SDL_Texture* texture = IMG_LoadTexture(renderer, filename);
-    if (texture == NULL)
-        SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR, "Load texture %s", IMG_GetError());
-
-    return texture;
-}
+void showMenu(SDL_Renderer*);
+SDL_Point getMouseAction();
 
 int main(int argc, char* argv[])
 {
-    SDL_Window* window = initSDL(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
-    SDL_Renderer* renderer = createRenderer(window);
+    srand(time(0));
+    Game game;
+    game.init();
 
-    SDL_Texture* background = loadTexture("bikiniBottom.jpg", renderer);
-    SDL_RenderCopy(renderer, background, NULL, NULL);
+    bool paused = false;
 
-    SDL_RenderPresent(renderer);
+    showMenu(game.renderer);
+    game.render();
+    do {
+        Action action = getUserAction();
+        if (action == QUIT) break;
+        if (action == PAUSE) {
+            paused = !paused;
+        }
+        if (paused) continue;
+
+        game.move(action);
+        game.render();
+        SDL_Delay(10);
+    } while (!game.over());
+    game.renderGameOver();
+
     waitUntilKeyPressed();
-    SDL_DestroyTexture(background);
-    background = NULL;
-    SDL_RenderPresent(renderer);
-    waitUntilKeyPressed();
 
-    SDL_Texture* spongeBob = loadTexture("Spongebob.png", renderer);
-    renderTexture(spongeBob, 200, 200, renderer);
-
-    SDL_RenderPresent(renderer);
-    waitUntilKeyPressed();
-
-    SDL_DestroyTexture(spongeBob);
-    spongeBob = NULL;
-    SDL_DestroyTexture(background);
-    background = NULL;
-
-    quitSDL(window, renderer);
+    game.destroy();
     return 0;
+}
+
+void showMenu(SDL_Renderer* renderer) {
+    SDL_Rect filled_rect;
+    filled_rect.x = 100;
+    filled_rect.y = 100;
+    filled_rect.w = 10;
+    filled_rect.h = 10;
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // green
+    SDL_RenderFillRect(renderer, &filled_rect);
+    SDL_RenderPresent(renderer);
+    waitUntilKeyPressed();
+}
+
+SDL_Point getMouseAction() {
+    SDL_Event e;
+    int mouseX;
+    int mouseY;
+    SDL_Point mouse;
+    while (SDL_PollEvent(&e)) {
+        switch (e.type) {
+        case SDL_MOUSEMOTION:
+            mouse.x = e.motion.x;
+            mouse.y = e.motion.y;
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+            if (e.button.button == SDL_BUTTON_LEFT) return mouse;
+        }
+    }
+}
+
+Action getUserAction() {
+    SDL_Event e;
+    if (SDL_PollEvent(&e) == 0) return NONE;
+    if (e.type == SDL_QUIT) return QUIT;
+    if (e.type == SDL_KEYDOWN) {
+        switch (e.key.keysym.sym) {
+        case SDLK_ESCAPE: return QUIT;
+        case SDLK_LEFT: return LEFT;
+        case SDLK_RIGHT: return RIGHT;
+        case SDLK_DOWN: return DOWN;
+        case SDLK_UP: return UP;
+        case SDLK_PAUSE: return PAUSE;
+        default: return NONE;
+        }
+    }
+    return NONE;
 }
