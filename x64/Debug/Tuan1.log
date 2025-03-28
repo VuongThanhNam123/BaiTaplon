@@ -1,12 +1,8 @@
 ﻿  main.cpp
-E:\LaptrinhC++\LTNC\Tuan1\Tuan1\Hero.h(19,19): warning C4244: '*=': conversion from 'double' to 'int', possible loss of data
+E:\LaptrinhC++\LTNC\Tuan1\Tuan1\graphics.h(13,16): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   (compiling source file 'main.cpp')
   
-E:\LaptrinhC++\LTNC\Tuan1\Tuan1\Hero.h(20,19): warning C4244: '*=': conversion from 'double' to 'int', possible loss of data
+E:\LaptrinhC++\LTNC\Tuan1\Tuan1\graphics.h(79,9): warning C4551: function call missing argument list
   (compiling source file 'main.cpp')
   
-E:\LaptrinhC++\LTNC\Tuan1\Tuan1\main.cpp(23,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-E:\LaptrinhC++\LTNC\Tuan1\Tuan1\main.cpp(65,9): warning C4101: 'mouseX': unreferenced local variable
-E:\LaptrinhC++\LTNC\Tuan1\Tuan1\main.cpp(66,9): warning C4101: 'mouseY': unreferenced local variable
-E:\LaptrinhC++\LTNC\Tuan1\Tuan1\main.cpp(78,1): warning C4715: 'getMouseAction': not all control paths return a value
   Tuan1.vcxproj -> E:\LaptrinhC++\LTNC\Tuan1\x64\Debug\Tuan1.exe

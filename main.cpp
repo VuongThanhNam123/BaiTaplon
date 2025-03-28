@@ -1,96 +1,103 @@
-﻿/*
- * A simple stupid game that is a good start to build any games in a clean and simple way.
-
- * Rule: a game is over when there is no SpongeBob left.
- * How to play: Use arrow keys to add more SpongeBob.
- */
+﻿#include <SDL.h>
+#include "graphics.h"
 #include <iostream>
-#include <SDL.h>
-#include <cstdlib>
-#include <ctime>
-#include "SDL_Utils.h"
-#include "Game.h"
-
+#include <vector>
+#include <string>
 using namespace std;
 
-Action getUserAction();
-
-void showMenu(SDL_Renderer*);
-SDL_Point getMouseAction();
-
-int main(int argc, char* argv[])
+void waitUntilKeyPressed()
 {
-    srand(time(0));
-    Game game;
-    game.init();
+    SDL_Event e;
+    while (true) {
+        if (SDL_PollEvent(&e) != 0 &&
+            (e.type == SDL_QUIT))
+            return;
+        SDL_Delay(100);
+    }
+}
+int main(int argc, char* argv[]) {
+    Graphics graphics;
+    graphics.init();
 
-    bool paused = false;
 
-    showMenu(game.renderer);
-    game.render();
-    do {
-        Action action = getUserAction();
-        if (action == QUIT) break;
-        if (action == PAUSE) {
-            paused = !paused;
+    graphics.presentScene();
+    ScrollingBackground background;
+    background.setTexture(graphics.loadTexture("img\\nen.jpg"));
+    SDL_Texture* coc=graphics.loadTexture("img\\coc.png");
+	vector<vatcan> b;
+    
+    bool quit = false;
+    int v = 1;
+    int time = 0;
+    SDL_Event e;
+    SDL_Texture* character[7];
+
+		character[0] = graphics.loadTexture("animation/go1.png");
+        character[1] = graphics.loadTexture("animation/go2.png");
+        character[2] = graphics.loadTexture("animation/go3.png");
+        character[3] = graphics.loadTexture("animation/go4.png");
+        character[4] = graphics.loadTexture("animation/go5.png");
+        character[5] = graphics.loadTexture("animation/go6.png");
+        character[6] = graphics.loadTexture("animation/go7.png");
+
+		
+
+    while (!quit) {
+		
+        time++;
+        while (SDL_PollEvent(&e) != 0) {
+            if (e.type == SDL_QUIT) quit = true;
+            
         }
-        if (paused) continue;
+        
+        background.scroll(v);
+        graphics.render(background);
+        graphics.renderTexture(character[(time/5)%7], 0, 254);
+  //      graphics.renderTexture(coc, 50, 245);
+		//SDL_Rect r = { 73, 270, 15, 50 };
+		//SDL_RenderDrawRect(graphics.renderer, &r);
+        
+       if (time % 100 == 0 && v<75) {
+           v++;
+        }
+	   for (auto &i : b) {
+           if (i.type == 1) {
+               graphics.renderTexture(coc, i.hitbox.x-23, i.hitbox.y-25);
+			   i.hitbox.x -= 1;
+           }
+	   }
+       
+	   if (rd() % 100 == 0 && b.size()==0) {
+		   vatcan tmp;
+		   tmp.hitbox.x = 800;
+		   tmp.hitbox.y = 270;
+		   tmp.hitbox.w = 15;
+		   tmp.hitbox.h = 50;
+		   tmp.type = 1;
+		   b.push_back(tmp);
+	   }
+	   if (rd() % 100 == 0 && b.size() && b.back().hitbox.x<=725 ) {
+		   vatcan tmp;
+		   tmp.hitbox.x = 800;
+		   tmp.hitbox.y = 270;
+		   tmp.hitbox.w = 15;
+		   tmp.hitbox.h = 50;
+		   tmp.type = 1;
+		   b.push_back(tmp);
 
-        game.move(action);
-        game.render();
+       }
+       if (b.size() && b[0].hitbox.x <= 0) {
+		   b.erase(b.begin());
+       
+       }
+        graphics.presentScene();
+        SDL_RenderClear(graphics.renderer);
         SDL_Delay(10);
-    } while (!game.over());
-    game.renderGameOver();
-
+        
+    }
+    SDL_DestroyTexture(background.texture);
     waitUntilKeyPressed();
-
-    game.destroy();
+    graphics.thoat();
+    
     return 0;
-}
-
-void showMenu(SDL_Renderer* renderer) {
-    SDL_Rect filled_rect;
-    filled_rect.x = 100;
-    filled_rect.y = 100;
-    filled_rect.w = 10;
-    filled_rect.h = 10;
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // green
-    SDL_RenderFillRect(renderer, &filled_rect);
-    SDL_RenderPresent(renderer);
-    waitUntilKeyPressed();
-}
-
-SDL_Point getMouseAction() {
-    SDL_Event e;
-    int mouseX;
-    int mouseY;
-    SDL_Point mouse;
-    while (SDL_PollEvent(&e)) {
-        switch (e.type) {
-        case SDL_MOUSEMOTION:
-            mouse.x = e.motion.x;
-            mouse.y = e.motion.y;
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-            if (e.button.button == SDL_BUTTON_LEFT) return mouse;
-        }
-    }
-}
-
-Action getUserAction() {
-    SDL_Event e;
-    if (SDL_PollEvent(&e) == 0) return NONE;
-    if (e.type == SDL_QUIT) return QUIT;
-    if (e.type == SDL_KEYDOWN) {
-        switch (e.key.keysym.sym) {
-        case SDLK_ESCAPE: return QUIT;
-        case SDLK_LEFT: return LEFT;
-        case SDLK_RIGHT: return RIGHT;
-        case SDLK_DOWN: return DOWN;
-        case SDLK_UP: return UP;
-        case SDLK_PAUSE: return PAUSE;
-        default: return NONE;
-        }
-    }
-    return NONE;
 }
