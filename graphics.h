@@ -8,13 +8,33 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <SDL_ttf.h>
 using namespace std;
 
 mt19937 rd(time(NULL));
+SDL_Texture* renderText(const char* text, TTF_Font* font, SDL_Color textColor, SDL_Renderer* renderer) {
+    SDL_Surface* textSurface =
+        TTF_RenderText_Solid(font, text, textColor);
+    if (textSurface == nullptr) return nullptr;
 
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    SDL_FreeSurface(textSurface);
+    return texture;
+}
+TTF_Font* loadFont(const char* path, int size) {
+    TTF_Font* gFont = TTF_OpenFont(path, size);
+
+    if (gFont == nullptr) {
+        SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR, "Load font %s", TTF_GetError());
+    }
+
+    return gFont;
+}
 struct vatcan {
     SDL_Rect hitbox;
     int type;
+	
 };
 struct ScrollingBackground {
     SDL_Texture* texture;
@@ -111,5 +131,12 @@ struct Graphics {
     }
    
 };
+bool check(SDL_Rect &a, SDL_Rect &b) {
+	if (a.x + a.w < b.x) return false;
+	if (a.x > b.x + b.w) return false;
+	if (a.y + a.h < b.y) return false;
+	if (a.y > b.y + b.h) return false;
+	return true;
+}
 
 #endif // _GRAPHICS__H
