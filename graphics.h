@@ -1,7 +1,6 @@
 ﻿
 #ifndef _GRAPHICS__H
 #define _GRAPHICS__H
-
 #include <SDL.h>
 #include <SDL_image.h>
 #include "defs.h"
@@ -9,9 +8,11 @@
 #include <string>
 #include <random>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 using namespace std;
 
 mt19937 rd(time(NULL));
+
 SDL_Texture* renderText(const char* text, TTF_Font* font, SDL_Color textColor, SDL_Renderer* renderer) {
     SDL_Surface* textSurface =
         TTF_RenderText_Solid(font, text, textColor);
@@ -30,6 +31,31 @@ TTF_Font* loadFont(const char* path, int size) {
     }
 
     return gFont;
+}
+void play(Mix_Music* gMusic) {
+    if (gMusic == nullptr) return;
+
+    if (Mix_PlayingMusic() == 0) {
+        Mix_PlayMusic(gMusic, -1);
+    }
+
+    else if (Mix_PausedMusic() == 1) {
+        Mix_ResumeMusic();
+    }
+}
+void play(Mix_Chunk* gChunk) {
+	if (gChunk != nullptr) {
+		Mix_PlayChannel(-1, gChunk, 0);
+	}
+}
+Mix_Chunk* loadSound(const char* path) {
+	Mix_Chunk* gChunk = Mix_LoadWAV(path);
+	
+	return gChunk;
+}
+Mix_Music* loadMusic(const char* path) {
+	Mix_Music* gMusic = Mix_LoadMUS(path);
+	return gMusic;
 }
 struct vatcan {
     SDL_Rect hitbox;
@@ -60,7 +86,16 @@ struct Graphics {
         renderTexture(bgr.texture, bgr.scrollingOffset, 0);
         renderTexture(bgr.texture, bgr.scrollingOffset - bgr.width, 0);
     }
-
+    void waitUntilKeyPressed()
+    {
+        SDL_Event e;
+        while (true) {
+            if (SDL_PollEvent(&e) != 0 &&
+                (e.type == SDL_QUIT))
+                return;
+            SDL_Delay(100);
+        }
+    }
     void logErrorAndExit(const char* msg, const char* error)
     {
         SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR,

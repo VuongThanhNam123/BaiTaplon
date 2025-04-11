@@ -2,7 +2,7 @@
 E:\LaptrinhC++\LTNC\Tuan1\Tuan1\graphics.h(14,16): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   (compiling source file 'main.cpp')
   
-E:\LaptrinhC++\LTNC\Tuan1\Tuan1\graphics.h(99,9): warning C4551: function call missing argument list
+E:\LaptrinhC++\LTNC\Tuan1\Tuan1\graphics.h(134,9): warning C4551: function call missing argument list
   (compiling source file 'main.cpp')
   
   Tuan1.vcxproj -> E:\LaptrinhC++\LTNC\Tuan1\x64\Debug\Tuan1.exe
