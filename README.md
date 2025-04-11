@@ -1,5 +1,23 @@
-Bài tập lớn: 
-Vương Thành Nam_24021582 "\"
-Chủ đề game: Game khủng long Chrome dinosaur game "\"
-Những nguồn tham khảo:
-https://docs.google.com/document/d/1FZ3jTqHxtyZznNWiJmmve0zYu_aSliUqLP2OsMcdehQ/edit?tab=t.0#heading=h.mps3zstdeza2
+Bài tập lớn: Vương Thành Nam. MSV:24021582 
+
+
+Chủ đề game: Game khủng long Chrome dinosaur game 
+
+
+1.Có Texture
+
+2.Có Background 
+
+3.Event bàn phím
+
+4.Event chuột
+
+5.Animation (hoạt hình)
+
+6.Xử lý va chạm
+
+7.Score (có tính điểm)
+
+8.Lưu bảng điểm
+
+9.Sound
