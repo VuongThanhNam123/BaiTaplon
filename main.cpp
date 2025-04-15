@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <fstream>
 using namespace std;
 vector<vatcan> b;
 
@@ -16,15 +17,16 @@ int main(int argc, char* argv[]) {
     background.setTexture(graphics.loadTexture("img\\nen.jpg"));
     SDL_Texture* coc = graphics.loadTexture("img\\coc.png");
     SDL_Texture* chim[2];
+
     chim[0] = graphics.loadTexture("animation\\chim1.png");
-	chim[1] = graphics.loadTexture("animation\\chim2.png"); 
+    chim[1] = graphics.loadTexture("animation\\chim2.png");
     bool quit = false;
     int v = 1;
     int time = 0;
     SDL_Event e;
     SDL_Texture* character[7];
-	SDL_Texture* cui[7];
-	SDL_Texture* thuacui = graphics.loadTexture("animation/thua1.png");
+    SDL_Texture* cui[7];
+    SDL_Texture* thuacui = graphics.loadTexture("animation/thua1.png");
     character[0] = graphics.loadTexture("animation/go1.png");
     character[1] = graphics.loadTexture("animation/go2.png");
     character[2] = graphics.loadTexture("animation/go3.png");
@@ -32,20 +34,21 @@ int main(int argc, char* argv[]) {
     character[4] = graphics.loadTexture("animation/go5.png");
     character[5] = graphics.loadTexture("animation/go6.png");
     character[6] = graphics.loadTexture("animation/go7.png");
-	cui[0] = graphics.loadTexture("animation/cui1.png");
-	cui[1] = graphics.loadTexture("animation/cui2.png");
-	cui[2] = graphics.loadTexture("animation/cui3.png");
-	cui[3] = graphics.loadTexture("animation/cui4.png");
-	cui[4] = graphics.loadTexture("animation/cui5.png");
-	cui[5] = graphics.loadTexture("animation/cui6.png");
-	cui[6] = graphics.loadTexture("animation/cui7.png");
-
+    cui[0] = graphics.loadTexture("animation/cui1.png");
+    cui[1] = graphics.loadTexture("animation/cui2.png");
+    cui[2] = graphics.loadTexture("animation/cui3.png");
+    cui[3] = graphics.loadTexture("animation/cui4.png");
+    cui[4] = graphics.loadTexture("animation/cui5.png");
+    cui[5] = graphics.loadTexture("animation/cui6.png");
+    cui[6] = graphics.loadTexture("animation/cui7.png");
+	
 	//chua thua
 	SDL_Texture* thuadung = graphics.loadTexture("animation/thua.png");
     //man hinh thua
 	TTF_Init();
 	TTF_Font* font_gameover = loadFont("orange juice 2.0.ttf", 60);
     SDL_Texture* gameover = renderText("Game Over", font_gameover, { 0, 0, 0 }, graphics.renderer);
+	
     //Score
 	TTF_Font* font_score = loadFont("orange juice 2.0.ttf", 20);
     int Y = 254, base = 15, yV;
@@ -76,7 +79,8 @@ int main(int argc, char* argv[]) {
         SDL_Rect nv_dung = { 0, Y + 8, 64, 46 };
 		
         SDL_Rect nv_cui = {0,Y+3,60,35};
-		
+       
+		Mix_ResumeMusic();
         // tạo bảng điểm
 		string s1 = "Score: ";
 		string s2 = to_string(score);
@@ -84,6 +88,20 @@ int main(int argc, char* argv[]) {
 		char const *s = a.c_str();
 		string s3 = "High Score: ";
 		string s4 = to_string(kq);
+        int x;
+		ifstream file("highscore.txt");
+        if (file >> x) {
+			if (x > kq) {
+				kq = x;
+			}
+            else {
+				ofstream file("highscore.txt");
+				file << kq;
+				file.close();
+            }
+        }
+		file.close();
+		
 		string tong = s3 + s4;
 		char const* kiluc = tong.c_str();
         SDL_Texture* Score = renderText(s, font_score, {0, 0, 0}, graphics.renderer);
@@ -193,7 +211,10 @@ int main(int argc, char* argv[]) {
         }
 
         graphics.presentScene();
-       
+        if (b.size() && b[0].hitbox.x <= 0) {
+            b.erase(b.begin());
+
+        }
        
         //thua
         
@@ -204,7 +225,7 @@ int main(int argc, char* argv[]) {
         }
 
         while (quit) {
-            Mix_ResumeMusic();
+			Mix_PauseMusic();   
             SDL_RenderClear(graphics.renderer);
 			graphics.renderTexture(background.texture, 0, 0);
             graphics.renderTexture(gameover, 258, 40);
@@ -256,10 +277,7 @@ int main(int argc, char* argv[]) {
         }
         
 }
-if (b.size() && b[0].hitbox.x <= 0) {
-    b.erase(b.begin());
 
-}
     graphics.thoat();
 
     return 0;
