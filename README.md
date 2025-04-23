@@ -21,3 +21,12 @@ Chủ đề game: Game khủng long Chrome dinosaur game
 8.Lưu bảng điểm
 
 9.Sound
+
+
+Âm thanh:
+
+
+https://www.sounds-resource.com/browser_games/googlechromedinosaurgame/sound/18002/
+
+
+https://www.myinstants.com/en/instant/mario-mushroom/
