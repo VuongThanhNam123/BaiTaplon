@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
     background.setTexture(graphics.loadTexture("img\\nen.jpg"));
     SDL_Texture* coc = graphics.loadTexture("img\\coc.png");
     SDL_Texture* chim[2];
-
+	SDL_Texture* hopqua = graphics.loadTexture("img\\hopqua.png");
     chim[0] = graphics.loadTexture("animation\\chim1.png");
     chim[1] = graphics.loadTexture("animation\\chim2.png");
     bool quit = false;
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 	TTF_Init();
 	TTF_Font* font_gameover = loadFont("orange juice 2.0.ttf", 60);
     SDL_Texture* gameover = renderText("Game Over", font_gameover, { 0, 0, 0 }, graphics.renderer);
-	
+    
     //Score
 	TTF_Font* font_score = loadFont("orange juice 2.0.ttf", 20);
     int Y = 254, base = 15, yV;
@@ -60,9 +60,16 @@ int main(int argc, char* argv[]) {
     Mix_Chunk* nhay = loadSound("sound\\jump.mp3");
 	Mix_Chunk* point = loadSound("sound\\point.mp3");
 	Mix_Music* nhacnen = loadMusic("sound\\nhac.mp3");
+	Mix_Chunk* thuong = loadSound("sound\\thuong.mp3");
+    int  score = 0;
+	Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
     //game chay
     while (!quit) {
-        int score = time/5;
+        
+        if (time % 5 == 0) {
+            score++;
+        }
+        bool cui1=0;
 		
         int kq = max(kq,score);
         play(nhacnen);
@@ -78,7 +85,7 @@ int main(int argc, char* argv[]) {
         
         SDL_Rect nv_dung = { 0, Y + 8, 64, 46 };
 		
-        SDL_Rect nv_cui = {0,Y+3,60,35};
+        SDL_Rect nv_cui = {0,Y+18,60,35};
        
 		Mix_ResumeMusic();
         // tạo bảng điểm
@@ -88,22 +95,24 @@ int main(int argc, char* argv[]) {
 		char const *s = a.c_str();
 		string s3 = "High Score: ";
 		string s4 = to_string(kq);
-        int x;
-		ifstream file("highscore.txt");
-        if (file >> x) {
-			if (x > kq) {
-				kq = x;
-			}
-            else {
-				ofstream file("highscore.txt");
-				file << kq;
-				file.close();
-            }
-        }
-		file.close();
+        
+		
 		
 		string tong = s3 + s4;
 		char const* kiluc = tong.c_str();
+        int x;
+        ifstream fileIn("highscore.txt");
+		fileIn >> x;
+        if (x > kq) {
+			kq = x;
+        }
+        fileIn.close();
+		if (kq > x) {
+            ofstream out("highscore.txt");
+			out << kq;
+			
+		}
+        
         SDL_Texture* Score = renderText(s, font_score, {0, 0, 0}, graphics.renderer);
 		SDL_Texture* High = renderText(kiluc, font_score, { 0, 0, 0 }, graphics.renderer);
 		if (score % 100 == 0 && score != 0) {
@@ -117,10 +126,7 @@ int main(int argc, char* argv[]) {
         graphics.renderTexture(High, 0, 20);
         
         const Uint8* key = SDL_GetKeyboardState(NULL);
-        while(!key[SDL_SCANCODE_DOWN]){ 
-            graphics.renderTexture(character[(time / 5) % 7], 0, Y);
-            break;
-        }
+
         if (Y - 254) {
             Y -= --yV;
             Y = min(Y, 254);
@@ -133,21 +139,23 @@ int main(int argc, char* argv[]) {
         }
         if (key[SDL_SCANCODE_DOWN]) {
             if (Y == 254) {
-                graphics.renderTexture(cui[(time / 5) % 7], 0, Y);
-
+				cui1 = 1;
                 yV = base;
-                Y += yV;
+
             }
-            else {
-                graphics.renderTexture(character[(time / 5) % 7], 0, Y);
-            }
+
         }
         
-        
+        if (cui1 == 1) {
+			graphics.renderTexture(cui[(time)/4 % 7], 0, Y);
+        }
+		else {
+			graphics.renderTexture(character[(time)/4 % 7], 0, Y);
+		}
     
         //graphics.renderTexture(chim, 73, 240);
         //SDL_Rect r = { 73, 240, 31, 30 };
-        //SDL_RenderDrawRect(graphics.renderer, &r);
+       //SDL_RenderDrawRect(graphics.renderer,&nv_cui);
 
         if (time % 100 == 0 && v < 75) {
             v++;
@@ -157,59 +165,125 @@ int main(int argc, char* argv[]) {
 
             if (i.type == 1) {
                 i.hitbox.x -= v;
+                
                 graphics.renderTexture(coc, i.hitbox.x - 23, i.hitbox.y - 25);
+                if (i.hitbox.w > 15) {
+                    graphics.renderTexture(coc, i.hitbox.x -8, i.hitbox.y - 25);
+                }
+				if (i.hitbox.w > 30) {
+					graphics.renderTexture(coc, i.hitbox.x + 7, i.hitbox.y - 25);
+				}
+			
             }
-            else {
+            if(i.type==2) {
                 i.hitbox.x -= v;
                 graphics.renderTexture(chim[(time%50) > 24], i.hitbox.x, i.hitbox.y);
             }
-		
-            if (check(nv_dung, i.hitbox) && !key[SDL_SCANCODE_DOWN]) {
+            if(i.type==0) {
+				i.hitbox.x -= v;
+				graphics.renderTexture(hopqua, i.hitbox.x-5, i.hitbox.y-5);
+				
+            }
+            if (check(nv_dung, i.hitbox) && cui1==0 &&i.type!=0) {
                 quit = true;
             }
-            if (check(nv_cui, i.hitbox) && key[SDL_SCANCODE_DOWN]) {
+            if (check(nv_cui, i.hitbox) && cui1==1 && i.type != 0) {
 
                 quit = true;
+            }
+			if (check(nv_dung, i.hitbox) && cui1 == 0 && i.type == 0) {
+                score +=50;
+				play(thuong);
+                b.erase(b.begin());
+			}
+            if (check(nv_cui, i.hitbox) && cui1 == 1 && i.type == 0) {
+                score+= 50;
+				play(thuong);
+                b.erase(b.begin());
             }
         }
 
-        if (rd() % 100 == 0 && b.size() == 0) {
-            vatcan tmp;
-			tmp.type = rd() % 2;
+        if (rd() % 80 == 0 && b.size()==0){
+          
+			
+           vatcan tmp;
+			tmp.type = rd() %3;
+            
             if (tmp.type == 1) {
-                tmp.hitbox.x = 800;
+
                 tmp.hitbox.y = 270;
-                tmp.hitbox.w = 15;
+
                 tmp.hitbox.h = 43;
+				int x = rd() % 3;
+				if (x == 0) {
+					tmp.hitbox.x = 800;
+					tmp.hitbox.w = 15;
+				}
+				else if (x == 1) {
+					tmp.hitbox.x= 785;
+					tmp.hitbox.w = 30;
+				}
+				else {
+					tmp.hitbox.x = 770;
+					tmp.hitbox.w = 45;
+				}
 			}
-			else {
+      
+			if(tmp.type == 2) {
 				tmp.hitbox.x = 800;
 				tmp.hitbox.y = 240;
 				tmp.hitbox.w = 31;
 				tmp.hitbox.h = 30;
 			}
-          
-            b.push_back(tmp);
-        }
-        if (rd() % 100 == 0 && b.size() && b.back().hitbox.x <= 650) {
-            vatcan tmp;
-            tmp.type = rd() % 2;
-			if (tmp.type == 1) {
+            if(tmp.type==0) {
 				tmp.hitbox.x = 800;
 				tmp.hitbox.y = 270;
-				tmp.hitbox.w = 15;
-				tmp.hitbox.h = 43;b.push_back(tmp);
-			}
-            else {
-				tmp.hitbox.x = 800;
-				tmp.hitbox.y = 240;
 				tmp.hitbox.w = 31;
-				tmp.hitbox.h = 30;b.push_back(tmp);
-			}
-            
-
+				tmp.hitbox.h = 40;
+            }
+            b.push_back(tmp);
+           
         }
+        if (b.size() >= 1 && rd() % 80 == 0 && b.back().hitbox.x <= 600) {
+            
+            vatcan tmp;
+            tmp.type = rd() % 3;
 
+            if (tmp.type == 1) {
+
+                tmp.hitbox.y = 270;
+
+                tmp.hitbox.h = 43;
+                int x = rd() % 3;
+                if (x == 0) {
+                    tmp.hitbox.x = 800;
+                    tmp.hitbox.w = 15;
+                }
+                else if (x == 1) {
+                    tmp.hitbox.x = 785;
+                    tmp.hitbox.w = 30;
+                }
+                else {
+                    tmp.hitbox.x = 770;
+                    tmp.hitbox.w = 45;
+                }
+            }
+
+            if (tmp.type == 2) {
+                tmp.hitbox.x = 800;
+                tmp.hitbox.y = 240;
+                tmp.hitbox.w = 31;
+                tmp.hitbox.h = 30;
+            }
+            if(tmp.type==0) {
+                tmp.hitbox.x = 800;
+                tmp.hitbox.y = 270;
+                tmp.hitbox.w = 31;
+                tmp.hitbox.h = 40;
+            }
+            b.push_back(tmp);
+      
+        }
         graphics.presentScene();
         if (b.size() && b[0].hitbox.x <= 0) {
             b.erase(b.begin());
@@ -235,20 +309,29 @@ int main(int argc, char* argv[]) {
 				play(am_thanh_thua);
                 cnt++;
             }
-			
+			graphics.renderTexture(thuadung, 0, Y);
             for (auto& i : b) {
-                if (i.type == 1) {
-                    graphics.renderTexture(coc, i.hitbox.x - 23, i.hitbox.y - 25);
 
-				}
-                else {
-                    graphics.renderTexture(chim[time%50>24], i.hitbox.x-15, i.hitbox.y-20);
+                if (i.type == 1) {
+
+                    graphics.renderTexture(coc, i.hitbox.x - 23, i.hitbox.y - 25);
+                    if (i.hitbox.w > 15) {
+                        graphics.renderTexture(coc, i.hitbox.x - 8, i.hitbox.y - 25);
+                    }
+                    if (i.hitbox.w > 30) {
+                        graphics.renderTexture(coc, i.hitbox.x + 7, i.hitbox.y - 25);
+                    }
+
                 }
-                
+                else {
+
+                    graphics.renderTexture(chim[(time % 50) > 24], i.hitbox.x, i.hitbox.y);
+                }
             }
+		
             
 			graphics.renderTexture(reset, 350, 250);
-			
+			//nut rest
             int x, y;
             SDL_Rect res;
 			res.x = 350; res.y = 250;
