@@ -10,9 +10,24 @@
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 using namespace std;
+bool inmenu = true;
+bool quit = false;
+int v = 1, vtmp = 1;
+int score = 0;
+int volume = 60;
+bool playGame = false;
+bool playMenu = true;
+bool flag = 0, flag2 = 0;
+int Y = 254, base = 15, yV;
+
 
 mt19937 rd(time(NULL));
-
+struct hieuung {
+	SDL_Texture* texture;
+	int x, y;
+	
+	int time;
+};
 SDL_Texture* renderText(const char* text, TTF_Font* font, SDL_Color textColor, SDL_Renderer* renderer) {
     SDL_Surface* textSurface =
         TTF_RenderText_Solid(font, text, textColor);
@@ -58,7 +73,7 @@ Mix_Music* loadMusic(const char* path) {
 	return gMusic;
 }
 struct vatcan {
-    SDL_Rect hitbox;
+    SDL_Rect hitbox[2];
     int type;
 	
 };
@@ -172,6 +187,17 @@ bool check(SDL_Rect &a, SDL_Rect &b) {
 	if (a.y + a.h < b.y) return false;
 	if (a.y > b.y + b.h) return false;
 	return true;
+}
+bool check1(SDL_Rect a[], SDL_Rect b[]) {
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0;j < 2;j++) {
+            if (check(a[i], b[j])) {
+                return true;
+            }
+        }
+    }
+	return false;
 }
 
 #endif // _GRAPHICS__H

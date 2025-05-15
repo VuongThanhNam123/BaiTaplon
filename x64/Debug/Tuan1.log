@@ -1,8 +1,9 @@
 ﻿  main.cpp
-E:\LaptrinhC++\LTNC\Tuan1\Tuan1\graphics.h(14,16): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+E:\LaptrinhC++\LTNC\Tuan1\Tuan1\graphics.h(24,16): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   (compiling source file 'main.cpp')
   
-E:\LaptrinhC++\LTNC\Tuan1\Tuan1\graphics.h(134,9): warning C4551: function call missing argument list
+E:\LaptrinhC++\LTNC\Tuan1\Tuan1\graphics.h(149,9): warning C4551: function call missing argument list
   (compiling source file 'main.cpp')
   
+E:\LaptrinhC++\LTNC\Tuan1\Tuan1\main.cpp(20,14): warning C4101: 'chim_hitbox': unreferenced local variable
   Tuan1.vcxproj -> E:\LaptrinhC++\LTNC\Tuan1\x64\Debug\Tuan1.exe
