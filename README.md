@@ -30,3 +30,9 @@ https://www.sounds-resource.com/browser_games/googlechromedinosaurgame/sound/180
 
 
 https://www.myinstants.com/en/instant/mario-mushroom/
+
+
+Mức độ sử dụng AI:
+
+
+Dùng AI dể tạo ảnh và background
